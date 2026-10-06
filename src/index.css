@@ -1,0 +1,150 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f7fb;
+  color: #172033;
+}
+
+button {
+  cursor: pointer;
+}
+
+.app {
+  min-height: 100vh;
+}
+
+.header {
+  padding: 24px 40px;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.header p {
+  margin: 8px 0 0;
+  color: #667085;
+}
+
+.language-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.language-switch button {
+  border: 1px solid #d0d5dd;
+  background: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.language-switch button.active {
+  background: #172033;
+  color: white;
+}
+
+main {
+  max-width: 1200px;
+  margin: 32px auto;
+  padding: 0 24px;
+}
+
+section {
+  background: white;
+  padding: 24px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+section h2 {
+  margin-top: 0;
+}
+
+.requirement-card {
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fafafa;
+}
+
+.requirement-card strong {
+  font-size: 16px;
+}
+
+.requirement-card p {
+  margin: 6px 0;
+  color: #667085;
+}
+
+.requirement-card span {
+  font-size: 13px;
+  color: #475467;
+}
+
+.generate-button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #172033;
+  color: white;
+  font-weight: 600;
+}
+
+.generate-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.upload-button {
+  padding: 11px 18px;
+  border: none;
+  border-radius: 8px;
+  background: #172033;
+  color: white;
+  font-weight: 600;
+}
+
+.empty-message {
+  color: #667085;
+}
+
+.uploaded-files {
+  margin-top: 18px;
+}
+
+.file-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px;
+  margin-bottom: 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.file-card p {
+  margin: 5px 0 0;
+  color: #667085;
+  font-size: 13px;
+}
+
+.remove-button {
+  padding: 8px 12px;
+  border: 1px solid #d0d5dd;
+  border-radius: 6px;
+  background: white;
+  color: #b42318;
+}
