@@ -2,11 +2,18 @@ import { useRef } from "react";
 import { getPdfPageCount } from "../utils/pdfUtils";
 import { getFileHash } from "../utils/validation";
 
+const MAX_FILES = 30;
+const MAX_TOTAL_SIZE = 50 * 1024 * 1024;
+
 function FileUploader({ files, setFiles }) {
   const inputRef = useRef(null);
 
   const handleFiles = async (event) => {
     const selectedFiles = Array.from(event.target.files);
+
+    if (selectedFiles.length === 0) {
+      return;
+    }
 
     const pdfFiles = selectedFiles.filter(
       (file) => file.type === "application/pdf",
@@ -22,9 +29,38 @@ function FileUploader({ files, setFiles }) {
       );
     }
 
-    const newFiles = [];
+    const remainingSlots = MAX_FILES - files.length;
 
-    for (const file of pdfFiles) {
+    if (remainingSlots <= 0) {
+      alert("Maximum 30 PDF files are allowed.");
+      event.target.value = "";
+      return;
+    }
+
+    const filesToProcess = pdfFiles.slice(0, remainingSlots);
+
+    if (pdfFiles.length > remainingSlots) {
+      alert(
+        `Only ${remainingSlots} more PDF file(s) can be uploaded. Maximum is 30.`,
+      );
+    }
+
+    const currentTotalSize = files.reduce(
+      (total, file) => total + file.size,
+      0,
+    );
+
+    const newFiles = [];
+    let pendingTotalSize = currentTotalSize;
+
+    for (const file of filesToProcess) {
+      if (pendingTotalSize + file.size > MAX_TOTAL_SIZE) {
+        alert(
+          `"${file.name}" was not added because the total upload size cannot exceed 50 MB.`,
+        );
+        continue;
+      }
+
       try {
         const pageCount = await getPdfPageCount(file);
         const hash = await getFileHash(file);
@@ -37,6 +73,8 @@ function FileUploader({ files, setFiles }) {
           pageCount,
           hash,
         });
+
+        pendingTotalSize += file.size;
       } catch (error) {
         console.error(error);
 
@@ -101,6 +139,8 @@ function FileUploader({ files, setFiles }) {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
+  const totalSize = files.reduce((total, file) => total + file.size, 0);
+
   return (
     <div className="file-uploader">
       <input
@@ -155,9 +195,13 @@ function FileUploader({ files, setFiles }) {
       )}
 
       {files.length > 0 && (
-        <p className="file-summary">
-          {files.length} PDF {files.length === 1 ? "file" : "files"} uploaded
-        </p>
+        <div className="file-summary">
+          <p>
+            {files.length} / {MAX_FILES} PDF files
+          </p>
+
+          <p>{formatFileSize(totalSize)} / 50 MB</p>
+        </div>
       )}
     </div>
   );

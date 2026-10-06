@@ -4,29 +4,31 @@ export function getRequirementStatus(
   expiryDate,
   submissionDeadline,
 ) {
+  // No document matched
   if (!matchedFile) {
-    if (requirement.mandatory) {
-      return "missing";
-    }
-
-    return "notProvided";
+    return requirement.mandatory ? "missing" : "notProvided";
   }
 
-  if (requirement.has_expiry === true) {
-    if (!expiryDate) {
-      return "expiryNeeded";
-    }
+  // Document does not require expiry
+  if (requirement.has_expiry !== true) {
+    return "ok";
+  }
 
-    if (submissionDeadline) {
-      const expiry = new Date(expiryDate);
-      const deadline = new Date(submissionDeadline);
+  // Expiry is required but missing
+  if (!expiryDate) {
+    return "expiryNeeded";
+  }
 
-      expiry.setHours(23, 59, 59, 999);
-      deadline.setHours(23, 59, 59, 999);
+  // Check expiry against submission deadline
+  if (submissionDeadline) {
+    const expiry = new Date(expiryDate);
+    const deadline = new Date(submissionDeadline);
 
-      if (expiry < deadline) {
-        return "expired";
-      }
+    expiry.setHours(23, 59, 59, 999);
+    deadline.setHours(23, 59, 59, 999);
+
+    if (expiry < deadline) {
+      return "expired";
     }
   }
 

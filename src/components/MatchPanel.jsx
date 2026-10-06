@@ -63,6 +63,16 @@ function MatchPanel({
 
       return updatedMatches;
     });
+
+    if (!fileId) {
+      setExpiryDates((previousDates) => {
+        const updatedDates = { ...previousDates };
+
+        delete updatedDates[requirementId];
+
+        return updatedDates;
+      });
+    }
   };
 
   const handleRemoveMatch = (requirementId) => {
@@ -72,6 +82,14 @@ function MatchPanel({
       delete updatedMatches[requirementId];
 
       return updatedMatches;
+    });
+
+    setExpiryDates((previousDates) => {
+      const updatedDates = { ...previousDates };
+
+      delete updatedDates[requirementId];
+
+      return updatedDates;
     });
   };
 
@@ -99,11 +117,12 @@ function MatchPanel({
 
   return (
     <div className="match-panel">
-      <h2>Match Documents</h2>
+      <h2>{language === "bn" ? "ডকুমেন্ট ম্যাচ করুন" : "Match Documents"}</h2>
 
       <p>
-        Match each uploaded PDF to the requirement it satisfies. A document can
-        only be used once.
+        {language === "bn"
+          ? "প্রতিটি PDF সংশ্লিষ্ট রিকোয়ারমেন্টের সাথে ম্যাচ করুন। একটি ডকুমেন্ট শুধুমাত্র একবার ব্যবহার করা যাবে।"
+          : "Match each uploaded PDF to the requirement it satisfies. A document can only be used once."}
       </p>
 
       <div className="match-list">
@@ -121,7 +140,15 @@ function MatchPanel({
                   {requirement.order}. {getRequirementTitle(requirement)}
                 </strong>
 
-                <span>{requirement.mandatory ? "Mandatory" : "Optional"}</span>
+                <span>
+                  {requirement.mandatory
+                    ? language === "bn"
+                      ? "আবশ্যিক"
+                      : "Mandatory"
+                    : language === "bn"
+                      ? "ঐচ্ছিক"
+                      : "Optional"}
+                </span>
               </div>
 
               <div className="match-control">
@@ -131,7 +158,11 @@ function MatchPanel({
                     handleMatch(requirement.id, event.target.value)
                   }
                 >
-                  <option value="">-- Select PDF --</option>
+                  <option value="">
+                    {language === "bn"
+                      ? "-- PDF নির্বাচন করুন --"
+                      : "-- Select PDF --"}
+                  </option>
 
                   {files.map((file) => {
                     const usedByRequirement = getMatchedRequirementId(file.id);
@@ -146,7 +177,11 @@ function MatchPanel({
                         disabled={isUsedByAnotherRequirement}
                       >
                         {file.name}
-                        {isUsedByAnotherRequirement ? " (already matched)" : ""}
+                        {isUsedByAnotherRequirement
+                          ? language === "bn"
+                            ? " (ইতিমধ্যে ম্যাচ করা)"
+                            : " (already matched)"
+                          : ""}
                       </option>
                     );
                   })}
@@ -158,7 +193,7 @@ function MatchPanel({
                     className="remove-match-button"
                     onClick={() => handleRemoveMatch(requirement.id)}
                   >
-                    Remove Match
+                    {language === "bn" ? "ম্যাচ সরান" : "Remove Match"}
                   </button>
                 )}
               </div>
@@ -172,7 +207,7 @@ function MatchPanel({
               {requiresExpiry && (
                 <div className="expiry-field">
                   <label htmlFor={`expiry-${requirement.id}`}>
-                    Expiry Date
+                    {language === "bn" ? "মেয়াদ শেষের তারিখ" : "Expiry Date"}
                   </label>
 
                   <input

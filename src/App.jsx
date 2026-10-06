@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FileUploader from "./components/FileUploader";
 import MatchPanel from "./components/MatchPanel";
 import RequirementsList from "./components/RequirementsList";
@@ -18,13 +18,29 @@ function App() {
 
   const t = translations[language];
 
+  useEffect(() => {
+    const validFileIds = new Set(files.map((file) => file.id));
+
+    setMatches((previousMatches) => {
+      const cleanedMatches = {};
+
+      Object.entries(previousMatches).forEach(([requirementId, fileId]) => {
+        if (validFileIds.has(fileId)) {
+          cleanedMatches[requirementId] = fileId;
+        }
+      });
+
+      return cleanedMatches;
+    });
+  }, [files]);
+
   const handleRequirementsFile = (event) => {
     const file = event.target.files[0];
 
     if (!file) return;
 
     if (file.type !== "application/json" && !file.name.endsWith(".json")) {
-      setError("Please select a valid requirements.json file.");
+      setError(t.invalidRequirements);
       return;
     }
 
@@ -52,7 +68,7 @@ function App() {
         setError("");
       } catch (err) {
         setRequirementsData(null);
-        setError("Invalid requirements.json file.");
+        setError(t.invalidStructure);
       }
     };
 
@@ -129,6 +145,7 @@ function App() {
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error(err);
+
       setError(
         "Could not generate the PDF package. Please check the uploaded documents.",
       );
@@ -166,7 +183,7 @@ function App() {
 
       <main>
         <section>
-          <h2>Load Requirements</h2>
+          <h2>{t.loadRequirements}</h2>
 
           <input
             type="file"
@@ -232,7 +249,10 @@ function App() {
                         requirement.id}
                   </span>
 
-                  <StatusBadge status={getStatus(requirement)} />
+                  <StatusBadge
+                    status={getStatus(requirement)}
+                    language={language}
+                  />
                 </div>
               ))}
             </div>
@@ -259,34 +279,51 @@ function App() {
           </section>
         )}
 
-        {requirementsData && blockingRequirements.length > 0 && (
-          <div className="generation-warning">
-            <strong>Generation blocked.</strong>
+        {requirementsData && (
+          <section className="generation-section">
+            {blockingRequirements.length > 0 ? (
+              <div className="generation-warning">
+                <strong>Package generation is blocked.</strong>
 
-            <p>Please fix the following requirement(s):</p>
+                <p>
+                  Fix these requirements before generating the final package:
+                </p>
 
-            <ul>
-              {blockingRequirements.map((requirement) => (
-                <li key={requirement.id}>
-                  {requirement.order}.{" "}
-                  {requirement.title_en ||
-                    requirement.title ||
-                    requirement.name ||
-                    requirement.id}{" "}
-                  — {getStatus(requirement)}
-                </li>
-              ))}
-            </ul>
-          </div>
+                <ul>
+                  {blockingRequirements.map((requirement) => (
+                    <li key={requirement.id}>
+                      <strong>
+                        {requirement.order}.{" "}
+                        {requirement.title_en ||
+                          requirement.title ||
+                          requirement.name ||
+                          requirement.id}
+                      </strong>
+
+                      {" — "}
+
+                      {getStatus(requirement)}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <div className="generation-ready">
+                <strong>All requirements are ready.</strong>
+
+                <p>You can now generate the final tender document package.</p>
+              </div>
+            )}
+
+            <button
+              className="generate-button"
+              disabled={!canGenerate}
+              onClick={handleGenerate}
+            >
+              {isGenerating ? "Generating..." : t.generatePackage}
+            </button>
+          </section>
         )}
-
-        <button
-          className="generate-button"
-          disabled={!canGenerate}
-          onClick={handleGenerate}
-        >
-          {isGenerating ? "Generating..." : t.generatePackage}
-        </button>
       </main>
     </div>
   );
